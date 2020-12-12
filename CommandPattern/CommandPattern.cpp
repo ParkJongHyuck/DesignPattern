@@ -1,59 +1,38 @@
-﻿#include <iostream>
-#include <conio.h>
-#include <string>
-
-using namespace std;
+﻿#include "pch.h"
+#include "GameActor.h"
 
 class Command {
 public:
 	virtual ~Command() {}
-	virtual void execute() = 0;
+	virtual void execute(GameActor& actor) = 0;
 };
 
 class JumpCommand : public Command {
 public:
-	virtual void execute() { Jump(); }
-	void Jump() { cout << "Jump!" << endl; }
-	
+	virtual void execute(GameActor& actor) { actor.Jump(); }
 };
 
 class FireCommand : public Command {
 public:
-	virtual void execute() { FireGun(); }
-	void FireGun() { cout << "Fire!" << endl; }
-	
+	virtual void execute(GameActor& actor) { actor.FireGun(); }
 };
 
 class SwapCommand : public Command {
 public:
-	virtual void execute() { SwapWeapon(); }
-	void SwapWeapon() { cout << "Swap!" << endl; }
-	
+	virtual void execute(GameActor& actor) { actor.SwapWeapon(); }	
 };
 
 class DashCommand : public Command {
 public:
-	virtual void execute() { Dash(); }
-	void Dash() { cout << "Dash!" << endl; }
+	virtual void execute(GameActor& actor) {
+		actor.Dash();
+	}
 };
 
 class InputHandler {
 public:
-	InputHandler() : buf{}, buttonW(new JumpCommand()), buttonA(new FireCommand()),
+	InputHandler() : buf {}, buttonW(new JumpCommand()), buttonA(new FireCommand()),
 		buttonS(new SwapCommand()), buttonD(new DashCommand()) {}
-
-	void Update() {
-		if (KeyboardInput())
-		{
-			handleInput();
-		}
-	}
-
-private:
-	const char ButtonW = 'w';
-	const char ButtonA = 'a';
-	const char ButtonS = 's';
-	const char ButtonD = 'd';
 
 	int KeyboardInput() {
 		if (_kbhit() != 0)
@@ -65,14 +44,20 @@ private:
 		return 0;
 	}
 
-	void handleInput() {
-		if (buf == ButtonW) buttonW->execute();
-		else if (buf == ButtonA) buttonA->execute();
-		else if (buf == ButtonS) buttonS->execute();
-		else if (buf == ButtonD) buttonD->execute();
+	Command* handleInput() {
+		if (buf == ButtonW) return buttonW;
+		else if (buf == ButtonA) return buttonA;
+		else if (buf == ButtonS) return buttonS;
+		else if (buf == ButtonD) return buttonD;
+		return nullptr;
 	}
 
 private:
+	const char ButtonW = 'w';
+	const char ButtonA = 'a';
+	const char ButtonS = 's';
+	const char ButtonD = 'd';	
+
 	char buf;
 	Command* buttonW;
 	Command* buttonA;
@@ -80,24 +65,20 @@ private:
 	Command* buttonD;
 };
 
-class Player
-{
-public:
-	Player() : inputHanlder(new InputHandler()) {}
-	
-	void Update() {
-		inputHanlder->Update();
-	}
-
-private:
-	InputHandler* inputHanlder;
-};
 int main() {
 	Player* player = new Player();
+	GameActor* Enemy = new Slime();
+	InputHandler* inputHandler = new InputHandler();
+	Command* command;
 
 	while (true)
 	{
-		player->Update();
+		if (inputHandler->KeyboardInput())
+		{
+			command = inputHandler->handleInput();
+			if (command)
+				command->execute(*Enemy);
+		}
 	}
 	return 0;
 }
