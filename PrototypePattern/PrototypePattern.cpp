@@ -5,12 +5,16 @@ using namespace std;
 class Monster 
 {
 public:
+	virtual Monster* Clone() = 0;
 	virtual void Bark() = 0;
 };
 
 class Ghost : public Monster 
 {
 public:
+	virtual Monster* Clone() {
+		return new Ghost();
+	}
 	virtual void Bark() {
 		cout << "Ghoooooooooost" << endl;
 	}
@@ -18,6 +22,9 @@ public:
 class Slime : public Monster 
 {
 public:
+	virtual Monster* Clone() {
+		return new Slime();
+	}
 	virtual void Bark() {
 		cout << "slim slim slimmeeee" << endl;
 	}
@@ -25,6 +32,9 @@ public:
 class Demon : public Monster 
 {
 public:
+	virtual Monster* Clone() {
+		return new Demon();
+	}
 	virtual void Bark() {
 		cout << "DEMON!@!!!!" << endl;
 	}
@@ -33,38 +43,18 @@ public:
 class Spawner 
 {
 public:
-	virtual ~Spawner() {}
-	virtual Monster* SpawnMonster() = 0;
-};
+	Spawner(Monster* prototype) : m_prototype(prototype) {}
+	~Spawner() {}
+	Monster* SpawnMonster() { return m_prototype->Clone(); }
 
-class GhostSpawner : public Spawner
-{
-public:
-	virtual Monster* SpawnMonster() {
-		return new Ghost();
-	}
-};
-
-class SlimeSpawner : public Spawner
-{
-public:
-	virtual Monster* SpawnMonster() {
-		return new Slime();
-	}
-};
-
-class DemonSpawner : public Spawner
-{
-public:
-	virtual Monster* SpawnMonster() {
-		return new Demon();
-	}
+private:
+	Monster* m_prototype;
 };
 
 int main()
 {
-	GhostSpawner* gs = new GhostSpawner();
-	Ghost* ghost = reinterpret_cast<Ghost*>(gs->SpawnMonster());
-	ghost->Bark();
+	Slime* slime = new Slime();
+	Spawner* spawner = new Spawner(slime);
+	spawner->SpawnMonster()->Bark();
 	return 0;
 }
