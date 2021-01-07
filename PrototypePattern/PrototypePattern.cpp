@@ -40,21 +40,25 @@ public:
 	}
 };
 
+Monster* SpawnGhost() {
+	return new Ghost();
+}
+
+typedef Monster* (*SpawnCallback)();
 class Spawner 
 {
 public:
-	Spawner(Monster* prototype) : m_prototype(prototype) {}
+	Spawner(SpawnCallback spawn) : m_spawn(spawn) {}
 	~Spawner() {}
-	Monster* SpawnMonster() { return m_prototype->Clone(); }
+	Monster* SpawnMonster() { return m_spawn(); }
 
 private:
-	Monster* m_prototype;
+	SpawnCallback m_spawn;
 };
 
 int main()
 {
-	Slime* slime = new Slime();
-	Spawner* spawner = new Spawner(slime);
+	Spawner* spawner = new Spawner(SpawnGhost);
 	spawner->SpawnMonster()->Bark();
 	return 0;
 }
