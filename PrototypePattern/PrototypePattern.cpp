@@ -44,21 +44,24 @@ Monster* SpawnGhost() {
 	return new Ghost();
 }
 
-typedef Monster* (*SpawnCallback)();
 class Spawner 
 {
 public:
-	Spawner(SpawnCallback spawn) : m_spawn(spawn) {}
+	Spawner() {}
 	~Spawner() {}
-	Monster* SpawnMonster() { return m_spawn(); }
+	virtual Monster* SpawnMonster() = 0;
 
 private:
-	SpawnCallback m_spawn;
 };
 
+template<class T>
+class SpawnerFor : public Spawner {
+public:
+	virtual Monster* SpawnMonster() { return new T(); }
+};
 int main()
 {
-	Spawner* spawner = new Spawner(SpawnGhost);
+	Spawner* spawner = new SpawnerFor<Slime>();
 	spawner->SpawnMonster()->Bark();
 	return 0;
 }
