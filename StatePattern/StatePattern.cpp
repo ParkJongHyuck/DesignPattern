@@ -3,35 +3,39 @@
 using namespace std;
 
 enum class Input {PRESS_DOWN, PRESS_UP, RELEASE_DOWN};
-
+enum class State { STATE_STANDING, STATE_JUMPING, STATE_DUCKING };
 class Hero
 {
 public:
 	void HandleInput(Input input)
 	{
-		if (input == Input::PRESS_UP)
+		switch (state)
 		{
-			if (!isJumping) 
+		case State::STATE_STANDING:
+			if (input == Input::PRESS_DOWN) 
 			{
-				isJumping = true;
-				// 점프
-			}
-		}
-		else if (input == Input::PRESS_DOWN)
-		{
-			if (!isJumping)
-			{
+				state = State::STATE_DUCKING;
 				// 엎드리기
 			}
-		}
-		else if (input == Input::RELEASE_DOWN)
-		{
-			// 기본상태
+			else if (input == Input::PRESS_UP) 
+			{
+				state = State::STATE_JUMPING;
+				// 점프하기
+			}
+			break;
+		case State::STATE_JUMPING:
+			// ...
+			break;
+		case State::STATE_DUCKING:
+			// ...
+			break;
+		default:
+			break;
 		}
 	}
 
 private:
-	bool isJumping = false;
+	State state;
 };
 
 int main()
